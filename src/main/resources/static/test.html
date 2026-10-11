@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Blockworld Test</title></head>
+<body>
+<h3>Blockworld WebSocket testi</h3>
+<input id="msg" placeholder="mesaj yaz">
+<button onclick="send()">Gönder</button>
+<pre id="log"></pre>
+
+<script>
+  const log = (t) => document.getElementById("log").textContent += t + "\n";
+  const ws = new WebSocket("ws://localhost:9090/ws");
+  ws.onopen = () => log("bağlandı");
+  ws.onmessage = (e) => log("gelen: " + e.data);
+  ws.onclose = () => log("bağlantı kapandı");
+  ws.onerror = () => log("hata");
+  function send() {
+    const input = document.getElementById("msg");
+    ws.send(input.value);
+    input.value = "";
+  }
+</script>
+</body>
+</html>
