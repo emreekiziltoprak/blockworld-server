@@ -35,3 +35,4 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
     }
 }
 //channel -> attend to game
+//one instance

@@ -14,7 +14,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.UUID;
 
-
+//opens new game on every connection via wsocket
 public class GameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     private static final Logger log = LoggerFactory.getLogger(GameHandler.class);
@@ -63,6 +63,7 @@ public class GameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             return;
         }
         joined = true;
+        registry.register(playerId, ctx.channel());
         gameLoop.submit(() -> joinGame.join(playerId,username));
     }
 

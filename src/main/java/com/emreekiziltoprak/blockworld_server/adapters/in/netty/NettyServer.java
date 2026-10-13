@@ -20,8 +20,12 @@ public class NettyServer implements SmartLifecycle {
     private Channel serverChannel;
     private volatile boolean running;
 
-    public NettyServer(int port){
+    private GameChannelInitializer gameChannelInitializer;
+
+    public NettyServer(int port, GameChannelInitializer gameChannelInitializer){
         this.port = port;
+
+        this.gameChannelInitializer = gameChannelInitializer;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class NettyServer implements SmartLifecycle {
             serverChannel = new ServerBootstrap()
                     .group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new GameChannelInitializer())
+                    .childHandler(gameChannelInitializer)
                     .bind(port)
                     .sync()
                     .channel();

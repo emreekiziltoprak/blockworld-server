@@ -10,10 +10,10 @@
 <script>
   const log = (t) => document.getElementById("log").textContent += t + "\n";
   const ws = new WebSocket("ws://localhost:9090/ws");
-  ws.onopen = () => log("bağlandı");
-  ws.onmessage = (e) => log("gelen: " + e.data);
-  ws.onclose = () => log("bağlantı kapandı");
-  ws.onerror = () => log("hata");
+  ws.onopen = () => {
+      log("bağlandı");
+      ws.send(JSON.stringify({ type: "JOIN", username: "emre" }));
+  };
   function send() {
     const input = document.getElementById("msg");
     ws.send(input.value);
