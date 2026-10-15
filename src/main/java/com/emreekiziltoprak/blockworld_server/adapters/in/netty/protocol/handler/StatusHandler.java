@@ -10,13 +10,14 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
 public class StatusHandler implements StatePacketHandler {
 
     private static final String VERSION_NAME = "Blockworld";
-    private static final int PROTOCOL = 767;
+    private static final int PROTOCOL = 47;
 
     private final GetServerStatusUseCase statusUseCase;
     private final JsonMapper mapper;
@@ -35,7 +36,7 @@ public class StatusHandler implements StatePacketHandler {
         GetServerStatusUseCase.ServerStatus s = statusUseCase.getStatus();
         String json = mapper.writeValueAsString(Map.of(
                 "version", Map.of("name", VERSION_NAME, "protocol", PROTOCOL),
-                "players", Map.of("max", s.maxPlayers(), "online", s.onlinePlayers()),
+                "players", Map.of("max", s.maxPlayers(), "online", s.onlinePlayers(), "sample", List.of()),
                 "description", Map.of("text", s.motd())));
 
         ByteBuf out = Packets.create(ctx, 0x00);
