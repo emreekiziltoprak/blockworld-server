@@ -69,7 +69,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    NettyServer nettyServer(@Value("${blockworld.netty.port:9090}") int port,
+    NettyServer nettyServer(@Value("${blockworld.netty.port:25565}") int port,
                             GameChannelInitializer initializer) {
         return new NettyServer(port, initializer);
     }

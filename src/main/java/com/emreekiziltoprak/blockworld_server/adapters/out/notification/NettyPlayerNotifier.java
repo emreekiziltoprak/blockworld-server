@@ -4,7 +4,6 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.Channel
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.WelcomeMessage;
 import com.emreekiziltoprak.blockworld_server.domain.Position;
 import com.emreekiziltoprak.blockworld_server.ports.out.PlayerNotifierPort;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
@@ -31,7 +30,7 @@ public class NettyPlayerNotifier implements PlayerNotifierPort {
             String json = mapper.writeValueAsString(new WelcomeMessage(
                     "WELCOME", playerId.toString(), spawn.x(), spawn.y(), spawn.z()));
 
-            channel.writeAndFlush(new TextWebSocketFrame(json));
+            log.debug("TODO(stage 3): send Join Game packet instead of {}", json);
 
         }, () -> log.warn("No open channel for player {}", playerId));
 
