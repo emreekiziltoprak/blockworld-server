@@ -1,6 +1,7 @@
 package com.emreekiziltoprak.blockworld_server.adapters.in.netty;
 
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ChannelRegistry;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ConnectionAttrs;
 import com.emreekiziltoprak.blockworld_server.application.GameLoop;
 import com.emreekiziltoprak.blockworld_server.ports.in.JoinGameUseCase;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.codec.VarIntFrameDecoder;
@@ -8,6 +9,8 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.codec.VarIntFram
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import tools.jackson.databind.json.JsonMapper;
+
+import static com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ProtocolState.HANDSHAKE;
 
 public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -26,6 +29,8 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
+        ConnectionAttrs.setState(ch, HANDSHAKE);
+
         ch.pipeline()
                 .addLast(new VarIntFrameDecoder())
                 .addLast(new VarIntFrameEncoder())
