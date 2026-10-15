@@ -3,12 +3,16 @@ package com.emreekiziltoprak.blockworld_server.config;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.GameChannelInitializer;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.NettyServer;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ChannelRegistry;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.scheduling.GameLoopScheduler;
 import com.emreekiziltoprak.blockworld_server.adapters.out.notification.NettyPlayerNotifier;
 import com.emreekiziltoprak.blockworld_server.adapters.out.persistence.InMemoryPlayerRepository;
 import com.emreekiziltoprak.blockworld_server.application.GameLoop;
 import com.emreekiziltoprak.blockworld_server.application.JoinGameService;
+import com.emreekiziltoprak.blockworld_server.application.ServerStatusService;
 import com.emreekiziltoprak.blockworld_server.domain.World;
+import com.emreekiziltoprak.blockworld_server.ports.in.GetServerStatusUseCase;
 import com.emreekiziltoprak.blockworld_server.ports.in.JoinGameUseCase;
 import com.emreekiziltoprak.blockworld_server.ports.out.PlayerNotifierPort;
 import com.emreekiziltoprak.blockworld_server.ports.out.PlayerRepository;
@@ -64,13 +68,32 @@ public class BeanConfiguration {
 
     @Bean
     GameChannelInitializer gameChannelInitializer(ChannelRegistry registry, GameLoop gameLoop,
-                                                  JoinGameUseCase joinGame, JsonMapper mapper) {
-        return new GameChannelInitializer(registry, gameLoop, joinGame, mapper);
-    }
+                                                  HandshakeHandler handshakeHandler,
+                                                  StatusHandler statusHandler){
+        return new GameChannelInitializer(registry, gameLoop, handshakeHandler, statusHandler);}
 
     @Bean
     NettyServer nettyServer(@Value("${blockworld.netty.port:25565}") int port,
                             GameChannelInitializer initializer) {
         return new NettyServer(port, initializer);
+    }
+
+    @Bean
+    GetServerStatusUseCase getServerStatusUseCase(
+            PlayerRepository repository,
+            @Value("${blockworld.motd:Blockworld}") String motd,
+            @Value("${blockworld.max-players:20}") int maxPlayers) {
+        return new ServerStatusService(repository, motd, maxPlayers);
+    }
+
+    @Bean
+    StatusHandler getStatusHandler(
+            GetServerStatusUseCase serverStat,
+            JsonMapper jsonMapper
+    ){return new StatusHandler(serverStat, jsonMapper);}
+
+    @Bean
+    HandshakeHandler handshakeHandler() {
+        return new HandshakeHandler();
     }
 }
