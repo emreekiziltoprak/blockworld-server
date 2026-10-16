@@ -3,6 +3,7 @@ package com.emreekiziltoprak.blockworld_server.adapters.in.netty;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ChannelRegistry;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ConnectionAttrs;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.LoginHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import com.emreekiziltoprak.blockworld_server.application.GameLoop;
 import com.emreekiziltoprak.blockworld_server.ports.in.GetServerStatusUseCase;
@@ -21,13 +22,16 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
     private final GameLoop gameLoop;
     private final HandshakeHandler handshakeHandler;
     private final StatusHandler statusHandler;
+    private final LoginHandler loginHandler;
 
     public GameChannelInitializer(ChannelRegistry registry, GameLoop gameLoop,
-                                   HandshakeHandler handshakeHandler, StatusHandler statusHandler) {
+                                   HandshakeHandler handshakeHandler, StatusHandler statusHandler,
+                                   LoginHandler loginHandler) {
         this.channelRegistry = registry;
         this.gameLoop = gameLoop;
         this.handshakeHandler = handshakeHandler;
         this.statusHandler = statusHandler;
+        this.loginHandler = loginHandler;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline()
                 .addLast(new VarIntFrameDecoder())
                 .addLast(new VarIntFrameEncoder())
-                .addLast(new GameHandler(channelRegistry, handshakeHandler, statusHandler));
+                .addLast(new GameHandler(channelRegistry, handshakeHandler, statusHandler, loginHandler));
     }
 }
 //channel -> attend to game

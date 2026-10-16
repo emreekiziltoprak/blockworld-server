@@ -5,6 +5,7 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.Channel
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ConnectionAttrs;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ProtocolState;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.LoginHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import com.emreekiziltoprak.blockworld_server.application.GameLoop;
 import com.emreekiziltoprak.blockworld_server.ports.in.GetServerStatusUseCase;
@@ -30,6 +31,7 @@ public class GameHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private final HandshakeHandler handshakeHandler;
     private final StatusHandler statusHandler;
+    private final LoginHandler loginHandler;
 
 
     @Override
@@ -47,6 +49,7 @@ public class GameHandler extends SimpleChannelInboundHandler<ByteBuf> {
         switch(state) {
             case HANDSHAKE -> handshakeHandler.handle(ctx, id, frame);
             case STATUS    -> statusHandler.handle(ctx, id, frame);
+            case LOGIN     -> loginHandler.handle(ctx, id, frame);
             default -> ctx.close();
         }
 
