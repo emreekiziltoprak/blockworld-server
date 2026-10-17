@@ -11,6 +11,9 @@ public class ConnectionAttrs {
     private static final AttributeKey<ProtocolState> STATE =
             AttributeKey.valueOf("protocol.state");
 
+    private static final AttributeKey<Integer> LAST_KEEP_ALIVE =
+            AttributeKey.valueOf("keepalive.last");
+
     private static final AttributeKey<UUID> UUID_ATTRIBUTE_KEY =
             AttributeKey.valueOf("player.uuid");
 
@@ -24,6 +27,10 @@ public class ConnectionAttrs {
         return ch.attr(UUID_ATTRIBUTE_KEY).get();
     }
 
+    public static Integer getLastKeepAlive(Channel ch) {
+        return ch.attr(LAST_KEEP_ALIVE).get();
+    }
+
     public static void setState(Channel ch, ProtocolState state){
         ch.attr(STATE).set(state);
     }
@@ -31,5 +38,20 @@ public class ConnectionAttrs {
     public static void setUuid(Channel ch, UUID uuid){
         ch.attr(UUID_ATTRIBUTE_KEY).set(uuid);
     }
+
+    public static void setLastKeepAlive(Channel ch, Integer last){
+        ch.attr(LAST_KEEP_ALIVE).set(last);
+    }
+    private static final AttributeKey<Long> LAST_KEEP_ALIVE_REPLY =
+            AttributeKey.valueOf("keepalive.reply");
+
+    public static Long getLastReply(Channel ch) {
+        return ch.attr(LAST_KEEP_ALIVE_REPLY).get();
+    }
+
+    public static void setLastReply(Channel ch, long millis) {
+        ch.attr(LAST_KEEP_ALIVE_REPLY).set(millis);
+    }
+
 
 }

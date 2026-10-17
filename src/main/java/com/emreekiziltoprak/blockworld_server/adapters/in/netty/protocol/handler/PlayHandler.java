@@ -2,12 +2,14 @@ package com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handle
 
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.codec.McBuf;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.codec.Packets;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ConnectionAttrs;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.StatePacketHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.packet.ChunkData;
 import com.emreekiziltoprak.blockworld_server.application.ChunkSerializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /** Play state: sends the world to a freshly logged-in client and keeps it alive. */
@@ -27,12 +29,23 @@ public class PlayHandler implements StatePacketHandler {
             }
         }
         ctx.flush();
+        ConnectionAttrs.setLastKeepAlive(ctx.channel(), 0);
+        ConnectionAttrs.setLastReply(ctx.channel(), System.currentTimeMillis());
         startKeepAlive(ctx);
     }
 
     /** Serverbound Play packets (Keep Alive, movement, ...) are ignored for now. */
     @Override
     public void handle(ChannelHandlerContext ctx, int packetId, ByteBuf body) {
+        Integer lastKeepAlive = ConnectionAttrs.getLastKeepAlive(ctx.channel());
+        if(packetId == 0x00){
+
+            int serverKeepAlive = McBuf.readVarInt(body);
+            if(lastKeepAlive != null && serverKeepAlive == lastKeepAlive) {
+                ConnectionAttrs.setLastReply(ctx.channel(), System.currentTimeMillis());
+            }
+        }
+
     }
 
     private void sendJoinGame(ChannelHandlerContext ctx) {
@@ -81,8 +94,15 @@ public class PlayHandler implements StatePacketHandler {
     private void startKeepAlive(ChannelHandlerContext ctx) {
         int[] counter = {0};
         var task = ctx.executor().scheduleAtFixedRate(() -> {
+            Long lastKeepTime = ConnectionAttrs.getLastReply(ctx.channel());
+            int id = ++counter[0];
+            if(lastKeepTime != null && System.currentTimeMillis() - lastKeepTime > 30_000) {
+                ctx.close();
+                return;
+            }
             ByteBuf out = Packets.create(ctx, 0x00);
-            McBuf.writeVarInt(out, ++counter[0]);
+            McBuf.writeVarInt(out,id);
+            ConnectionAttrs.setLastKeepAlive(ctx.channel(), id);
             ctx.writeAndFlush(out);
         }, 10, 10, TimeUnit.SECONDS);
         ctx.channel().closeFuture().addListener(f -> task.cancel(false));

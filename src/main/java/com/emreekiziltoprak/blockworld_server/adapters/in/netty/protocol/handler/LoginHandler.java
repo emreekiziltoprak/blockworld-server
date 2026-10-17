@@ -34,7 +34,9 @@ public class LoginHandler implements StatePacketHandler {
             ctx.close();
             return;
         }
-        sendLoginSuccess(ctx, offlineUuid(username), username);
+        UUID offlineUUID = offlineUuid(username);
+        ConnectionAttrs.setUuid(ctx.channel(), offlineUUID);
+        sendLoginSuccess(ctx, offlineUUID, username);
     }
 
     public static UUID offlineUuid(String username) {
