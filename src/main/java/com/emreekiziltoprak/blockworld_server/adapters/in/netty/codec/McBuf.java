@@ -36,8 +36,11 @@ public final class McBuf {
     }
 
     public static void writeString(ByteBuf out, String value) {
+        //get string as bytes
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        //write length to buffer as varInt
         VarInt.write(out, bytes.length);
+        //
         out.writeBytes(bytes);
     }
 }

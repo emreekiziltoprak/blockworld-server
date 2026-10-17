@@ -29,6 +29,7 @@ public final class ChunkSerializer {
             if (s == null) continue;
             mask |= 1 << i;
             //write blocks to buffer as little endian
+            //write all data from section one by one
             for (short block : s.blocks) buf.writeShortLE(block); // n = x + 16*z + 256*y
         }
         for (Section s : chunk.sections) if (s != null) buf.writeBytes(s.blockLight);

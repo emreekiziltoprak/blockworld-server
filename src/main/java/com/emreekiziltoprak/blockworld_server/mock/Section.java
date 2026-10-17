@@ -3,6 +3,7 @@ package com.emreekiziltoprak.blockworld_server.mock;
 //vertical side of chunk
 //each 16 height
 public class Section {
+    //actual final result of flattening..
     public final short[] blocks = new short[4096]; //16x16x16
 
     //light types

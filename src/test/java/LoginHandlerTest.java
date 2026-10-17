@@ -6,6 +6,7 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.Connect
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ProtocolState;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.LoginHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.PlayHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,9 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoginHandlerTest {
 
     private static EmbeddedChannel loginChannel() {
+        PlayHandler play = new PlayHandler();
         EmbeddedChannel ch = new EmbeddedChannel(new VarIntFrameEncoder(),
                 new GameHandler(new ChannelRegistry(), new HandshakeHandler(),
-                        new StatusHandler(null, null), new LoginHandler()));
+                        new StatusHandler(null, null), new LoginHandler(play), play));
         ConnectionAttrs.setState(ch, ProtocolState.LOGIN);
         return ch;
     }
@@ -43,7 +45,12 @@ class LoginHandlerTest {
         assertEquals(0x02, McBuf.readVarInt(out));
         String uuid = McBuf.readString(out);
         assertEquals("Steve", McBuf.readString(out));
-        assertFalse(out.isReadable());
+        out.release();
+        ByteBuf joinGame = ch.readOutbound();
+        McBuf.readVarInt(joinGame);
+        assertEquals(0x01, McBuf.readVarInt(joinGame));
+        joinGame.release();
+        out = Unpooled.EMPTY_BUFFER;
         assertEquals(LoginHandler.offlineUuid("Steve").toString(), uuid);
         assertEquals(ProtocolState.PLAY, ConnectionAttrs.getState(ch));
         out.release();

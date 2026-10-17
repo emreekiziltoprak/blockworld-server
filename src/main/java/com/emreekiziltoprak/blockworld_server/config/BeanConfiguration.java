@@ -5,6 +5,7 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.NettyServer;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ChannelRegistry;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.LoginHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.PlayHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.scheduling.GameLoopScheduler;
 import com.emreekiziltoprak.blockworld_server.adapters.out.notification.NettyPlayerNotifier;
@@ -71,8 +72,9 @@ public class BeanConfiguration {
     GameChannelInitializer gameChannelInitializer(ChannelRegistry registry, GameLoop gameLoop,
                                                   HandshakeHandler handshakeHandler,
                                                   StatusHandler statusHandler,
-                                                  LoginHandler loginHandler){
-        return new GameChannelInitializer(registry, gameLoop, handshakeHandler, statusHandler, loginHandler);}
+                                                  LoginHandler loginHandler,
+                                                  PlayHandler playHandler){
+        return new GameChannelInitializer(registry, gameLoop, handshakeHandler, statusHandler, loginHandler, playHandler);}
 
     @Bean
     NettyServer nettyServer(@Value("${blockworld.netty.port:25565}") int port,
@@ -100,7 +102,12 @@ public class BeanConfiguration {
     }
 
     @Bean
-    LoginHandler loginHandler() {
-        return new LoginHandler();
+    LoginHandler loginHandler(PlayHandler playHandler) {
+        return new LoginHandler(playHandler);
+    }
+
+    @Bean
+    PlayHandler playHandler() {
+        return new PlayHandler();
     }
 }

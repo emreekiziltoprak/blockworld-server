@@ -4,6 +4,7 @@ import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.Channel
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.ConnectionAttrs;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.HandshakeHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.LoginHandler;
+import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.PlayHandler;
 import com.emreekiziltoprak.blockworld_server.adapters.in.netty.protocol.handler.StatusHandler;
 import com.emreekiziltoprak.blockworld_server.application.GameLoop;
 import com.emreekiziltoprak.blockworld_server.ports.in.GetServerStatusUseCase;
@@ -23,15 +24,17 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
     private final HandshakeHandler handshakeHandler;
     private final StatusHandler statusHandler;
     private final LoginHandler loginHandler;
+    private final PlayHandler playHandler;
 
     public GameChannelInitializer(ChannelRegistry registry, GameLoop gameLoop,
                                    HandshakeHandler handshakeHandler, StatusHandler statusHandler,
-                                   LoginHandler loginHandler) {
+                                   LoginHandler loginHandler, PlayHandler playHandler) {
         this.channelRegistry = registry;
         this.gameLoop = gameLoop;
         this.handshakeHandler = handshakeHandler;
         this.statusHandler = statusHandler;
         this.loginHandler = loginHandler;
+        this.playHandler = playHandler;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class GameChannelInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline()
                 .addLast(new VarIntFrameDecoder())
                 .addLast(new VarIntFrameEncoder())
-                .addLast(new GameHandler(channelRegistry, handshakeHandler, statusHandler, loginHandler));
+                .addLast(new GameHandler(channelRegistry, handshakeHandler, statusHandler, loginHandler, playHandler));
     }
 }
 //channel -> attend to game

@@ -5,6 +5,6 @@ public record ChunkData(
         int z,
         boolean groundUp, //true false
         int primaryBitMask, //which section to be displayed
-        byte[] data //chunk data
+        byte[] data //chunk data (flattened)
 ) {
 }

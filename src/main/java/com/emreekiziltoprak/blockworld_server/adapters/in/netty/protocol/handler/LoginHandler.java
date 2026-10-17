@@ -16,6 +16,12 @@ public class LoginHandler implements StatePacketHandler {
 
     private static final int MAX_USERNAME_LENGTH = 16;
 
+    private final PlayHandler playHandler;
+
+    public LoginHandler(PlayHandler playHandler) {
+        this.playHandler = playHandler;
+    }
+
     @Override
     public void handle(ChannelHandlerContext ctx, int packetId, ByteBuf body) {
         if (packetId != 0x00) { // Login Start; Encryption Response (0x01) is online mode only
@@ -41,5 +47,6 @@ public class LoginHandler implements StatePacketHandler {
         McBuf.writeString(out, username);
         ctx.writeAndFlush(out);
         ConnectionAttrs.setState(ctx.channel(), ProtocolState.PLAY);
+        playHandler.onEnterPlay(ctx);
     }
 }
